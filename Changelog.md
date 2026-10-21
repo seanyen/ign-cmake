@@ -1,6 +1,202 @@
-## Ignition CMake 2.x
+## Gazebo CMake 2.x
 
-### Ignition CMake 2.X.X (2021-XX-XX)
+### Gazebo CMake 2.19.0 (2026-06-12)
+
+1. Avoid dangling pkg-config version when IgnProtobuf has no version
+    * [Pull request #567](http://github.com/gazebosim/gz-cmake/pull/567)
+
+### Gazebo CMake 2.18.0 (2026-05-14)
+
+1. cpack should exclude .git/ from tarballs
+    * [Pull request #552](https://github.com/gazebosim/gz-cmake/pull/552)
+    * [Pull request #556](https://github.com/gazebosim/gz-cmake/pull/556)
+
+1. Use portable shebang (#!/usr/bin/env bash) for bash scripts
+    * [Pull request #542](https://github.com/gazebosim/gz-cmake/pull/542)
+    * [Pull request #546](https://github.com/gazebosim/gz-cmake/pull/546)
+
+1. Make Whole Program Optimization (WPO) optional on MSVC
+    * [Pull request #532](https://github.com/gazebosim/gz-cmake/pull/532)
+    * [Pull request #536](https://github.com/gazebosim/gz-cmake/pull/536)
+
+1. Add a Doxygen filter for .h files (backport #523)
+    * [Pull request #523](https://github.com/gazebosim/gz-cmake/pull/523)
+    * [Pull request #527](https://github.com/gazebosim/gz-cmake/pull/527)
+
+### Gazebo CMake 2.17.3 (2026-01-26)
+
+1. Fix dead material-design-lite links
+    * [Pull request #514](https://github.com/gazebosim/gz-cmake/pull/514)
+
+1. Fortress: disable Ubuntu Focal CI
+    * [Pull request #512](https://github.com/gazebosim/gz-cmake/pull/512)
+
+1. Avoid warnings on unused CMAKE_BUILD_TYPE on Windows
+    * [Pull request #487](https://github.com/gazebosim/gz-cmake/pull/487)
+
+1. Normalize header install path
+    * [Pull request #481](https://github.com/gazebosim/gz-cmake/pull/481)
+
+1. Support for Windows conda-forge ogre-next recipe
+    * [Pull request #464](https://github.com/gazebosim/gz-cmake/pull/464)
+
+1. Reduce example names to be able to run Conda CI on Windows
+    * [Pull request #463](https://github.com/gazebosim/gz-cmake/pull/463)
+
+1. Accept arbitrary capitalization for coverage build type
+    * [Pull request #435](https://github.com/gazebosim/gz-cmake/pull/435)
+
+### Gazebo CMake 2.17.2 (2024-05-07)
+
+1. Backport #402: Replace `exec_program` with `execute_process`
+    * [Pull request #402](https://github.com/gazebosim/gz-cmake/pull/402)
+
+1. Remove @mxgrey as codeowner and assign maintainership to @scpeters
+    * [Pull request #414](https://github.com/gazebosim/gz-cmake/pull/414)
+
+1. Update github action workflows
+    * [Pull request #395](https://github.com/gazebosim/gz-cmake/pull/395)
+
+### Gazebo CMake 2.17.1 (2023-08-31)
+
+1. FindIgnOgre*: fix LIBRARY_DIRS and PLUGINDIR resolution when using pkgconfig
+    * [Pull request #376](https://github.com/gazebosim/gz-cmake/pull/376)
+
+### Gazebo CMake 2.17.0 (2023-05-19)
+
+1. Use CONFIG in gz_add_benchmark to avoid Windows collisions
+    * [Pull request #341](https://github.com/gazebosim/ign-cmake/pull/341)
+
+1. LICENSE: add Apache 2.0 license text
+    * [Pull request #338](https://github.com/gazebosim/ign-cmake/pull/338)
+
+1. Disable protobuf warnings on protobuf target (#335)
+    * [Pull request #335](https://github.com/gazebosim/ign-cmake/pull/335)
+
+1. Fix FindAVDEVICE.cmake in case without pkg-config installed with ffmpeg >= 5.1
+    * [Pull request #330](https://github.com/gazebosim/ign-cmake/pull/330)
+
+### Ignition CMake 2.16.0 (2022-10-08)
+
+1. FindIgnOGRE2: preserve PKG_CONFIG_PATH
+    * [Pull request #319](https://github.com/gazebosim/ign-cmake/pull/319)
+
+1. FindSQLite3: Add SQLite::SQLite3 ALIAS
+    * [Pull request #313](https://github.com/gazebosim/ign-cmake/pull/313)
+    * [Pull request #317](https://github.com/gazebosim/ign-cmake/pull/317)
+
+1. FindUUID: Do not wrap LIBRARY_NAMES argument with quotes
+    * [Pull request #315](https://github.com/gazebosim/ign-cmake/pull/315)
+
+1. Don't assume `CMAKE_INSTALL_*DIR` variables are relative
+    * [Pull request #305](https://github.com/gazebosim/ign-cmake/pull/305)
+
+1. Remove check for s3cfg
+    * [Pull request #308](https://github.com/gazebosim/ign-cmake/pull/308)
+
+### Ignition CMake 2.15.0 (2022-08-29)
+
+1. ign -> gz: add `gz/*` header files
+    * [Pull request #303](https://github.com/gazebosim/gz-cmake/pull/303)
+
+1. Backport `GZ_SANITIZER` variable
+    * [Pull request #294](https://github.com/gazebosim/gz-cmake/pull/294)
+
+1. Update doxygen file
+    * [Pull request #276](https://github.com/gazebosim/gz-cmake/pull/276)
+
+### Ignition CMake 2.14.0 (2022-07-25)
+
+1. Add code coverage ignore file
+    * [Pull request #279](https://github.com/gazebosim/gz-cmake/pull/279)
+
+### Ignition CMake 2.13.0 (2022-07-22)
+
+1. Backport `GZ_DESIGNATION` tick-tock
+    * [Pull request #284](https://github.com/gazebosim/gz-cmake/pull/284)
+
+1. Upload docs to an s3 bucket based only on the major version
+    * [Pull request #281](https://github.com/gazebosim/gz-cmake/pull/281)
+
+1. Exclude proto generated cpp in coverage test
+    * [Pull request #272](https://github.com/gazebosim/gz-cmake/pull/272)
+
+1. Add LTCG flag on Windows builds
+    * [Pull request #251](https://github.com/gazebosim/gz-cmake/pull/251)
+
+1. Update codeowners
+    * [Pull request #261](https://github.com/gazebosim/gz-cmake/pull/261)
+    * [Pull request #237](https://github.com/gazebosim/gz-cmake/pull/237)
+
+1. Update documentation to gazebosim.org
+    * [Pull request #248](https://github.com/gazebosim/gz-cmake/pull/248)
+
+1. Improving CONFIG test
+    * [Pull request #235](https://github.com/gazebosim/gz-cmake/pull/235)
+
+### Ignition CMake 2.12.1 (2022-04-12)
+
+1. Allow to recreate targets created by IgnPkgConfig
+    * [Pull request #231](https://github.com/ignitionrobotics/ign-cmake/pull/231)
+
+1. Adding tests for CONFIG argument
+    * [Pull request #230](https://github.com/ignitionrobotics/ign-cmake/pull/230)
+
+### Ignition CMake 2.12.0 (2022-04-11)
+
+1. Adding CONFIG option
+    * [Pull request #211](https://github.com/ignitionrobotics/ign-cmake/pull/211)
+
+1. IgnFindOGRE2: support for the ogre-next package on Ubuntu Jammy
+    * [Pull request #224](https://github.com/ignitionrobotics/ign-cmake/pull/224)
+
+1. Fix check for missing components in OGRE2. Be more verbose with components
+    * [Pull request #220](https://github.com/ignitionrobotics/ign-cmake/pull/220)
+
+1. FindIgnOGRE2: exclude ogre versions different than 2.x
+    * [Pull request #219](https://github.com/ignitionrobotics/ign-cmake/pull/219)
+    * [Pull request #221](https://github.com/ignitionrobotics/ign-cmake/pull/221)
+
+1. Specify sanitizers using IGN_SANITIZERS cmake variable
+    * [Pull request #210](https://github.com/ignitionrobotics/ign-cmake/pull/210)
+
+1. Replace deprecated PythonInterp with Python3 (#213)
+    * [Pull request #213](https://github.com/ignitionrobotics/ign-cmake/pull/213)
+    * [Pull request #223](https://github.com/ignitionrobotics/ign-cmake/pull/223)
+
+### Ignition CMake 2.11.0 (2022-02-23)
+
+1. Set source path to be used by common::testing
+    * [Pull request #206](https://github.com/ignitionrobotics/ign-cmake/pull/206)
+
+3. Add examples using static libraries
+    * [Pull request #202](https://github.com/ignitionrobotics/ign-cmake/pull/202)
+
+### Ignition CMake 2.10.0 (2021-12-21)
+
+1. doxygen allow all .cc, .hh, and CMakeLists.txt, not just in examples/ dir
+    * [Pull request #198](https://github.com/ignitionrobotics/ign-cmake/pull/198)
+
+1. Add `LEGACY_PROJECT_PREFIX` parameter to `ign_create_core_library`
+    * [Pull request #199](https://github.com/ignitionrobotics/ign-cmake/pull/199)
+
+1. Add `HIDE_SYMBOLS_BY_DEFAULT` parameter to `ign_configure_build`
+    * [Pull request #196](https://github.com/ignitionrobotics/ign-cmake/pull/196)
+
+1. Add Ubuntu Jammy CI
+    * [Pull request #194](https://github.com/ignitionrobotics/ign-cmake/pull/194)
+
+1. FindIgnURDFDOM cmake module
+    * [Pull request #193](https://github.com/ignitionrobotics/ign-cmake/pull/193)
+
+1. Do not modify `CMAKE_FIND_LIBRARY_PREFIXES` and `CMAKE_FIND_LIBRARY_SUFFIXES` on Windows
+    * [Pull request #189](https://github.com/ignitionrobotics/ign-cmake/pull/189)
+
+1. Project option: `REPLACE_IGNITION_INCLUDE_PATH`
+    * [Pull request #190](https://github.com/ignitionrobotics/ign-cmake/pull/190)
+
+1. Project option: `NO_IGNITION_PREFIX`
+    * [Pull request #191](https://github.com/ignitionrobotics/ign-cmake/pull/191)
 
 ### Ignition CMake 2.9.0 (2021-09-02)
 
@@ -323,4 +519,3 @@
     * [Full list of changes](https://github.com/ignitionrobotics/ign-cmake/compare/ignition-cmake_0.4.1...ignition-cmake_0.4.0)
 
 ### Ignition CMake 0.4.0
-

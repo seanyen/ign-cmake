@@ -24,7 +24,16 @@
 # support shared library versions of Protobuf.
 
 include(IgnPkgConfig)
-ign_pkg_config_entry(IgnProtobuf "protobuf >= ${IgnProtobuf_FIND_VERSION}")
+# Only add a version constraint to the pkg-config entry when a version was
+# actually requested. Otherwise the entry would be "protobuf >= " with a
+# dangling operator and no version, which makes pkg-config consume the next
+# token in the Requires line as protobuf's version, silently dropping that
+# dependency. See https://github.com/gazebosim/gz-msgs/issues/594
+if(IgnProtobuf_FIND_VERSION)
+  ign_pkg_config_entry(IgnProtobuf "protobuf >= ${IgnProtobuf_FIND_VERSION}")
+else()
+  ign_pkg_config_entry(IgnProtobuf "protobuf")
+endif()
 
 find_package(Protobuf ${IgnProtobuf_FIND_VERSION} QUIET CONFIG)
 
@@ -101,6 +110,13 @@ if(${Protobuf_FOUND})
     add_executable(protobuf::protoc IMPORTED)
     set_target_properties(protobuf::protoc PROPERTIES
       IMPORTED_LOCATION ${PROTOBUF_PROTOC_EXECUTABLE})
+  endif()
+  
+  # See: https://github.com/osrf/buildfarmer/issues/377
+  if(MSVC)
+    target_compile_options(protobuf::protoc INTERFACE /wd4251)
+    target_compile_options(protobuf::libprotoc INTERFACE /wd4251)
+    target_compile_options(protobuf::libprotobuf INTERFACE /wd4251)
   endif()
 
 endif()

@@ -1,29 +1,23 @@
 name: Ubuntu CI
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+    branches:
+      - 'ign-cmake[0-9]'
+      - 'gz-cmake[0-9]'
+      - 'main'
 
 jobs:
-  bionic-ci:
+  jammy-ci:
     runs-on: ubuntu-latest
-    name: Ubuntu Bionic CI
+    name: Ubuntu Jammy CI
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Compile and test
         id: ci
-        uses: ignition-tooling/action-ignition-ci@bionic
+        uses: gazebo-tooling/action-gz-ci@jammy
         with:
-          cmake-args: '-DBUILDSYSTEM_TESTING=True'
-          codecov-enabled: false
-  focal-ci:
-    runs-on: ubuntu-latest
-    name: Ubuntu Focal CI
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Compile and test
-        id: ci
-        uses: ignition-tooling/action-ignition-ci@focal
-        with:
-          cmake-args: '-DBUILDSYSTEM_TESTING=True'
+          cmake-args: '-DBUILDSYSTEM_TESTING=True -DBUILD_DOCS=OFF'
 

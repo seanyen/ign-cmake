@@ -53,7 +53,9 @@ macro(ign_setup_packages)
 
   list(APPEND CPACK_SOURCE_GENERATOR "TBZ2")
   list(APPEND CPACK_SOURCE_GENERATOR "ZIP")
-  list(APPEND CPACK_SOURCE_IGNORE_FILES "TODO;\.hg/;\.sw.$;/build/;\.hgtags;\.hgignore;appveyor\.yml;\.travis\.yml;codecov\.yml")
+  list(APPEND CPACK_SOURCE_IGNORE_FILES
+    /\\\\.git/
+    "TODO;\.hg/;\.sw.$;/build/;\.hgtags;\.hgignore;appveyor\.yml;\.travis\.yml;codecov\.yml")
 
   include(InstallRequiredSystemLibraries)
 
@@ -103,7 +105,7 @@ macro(ign_setup_packages)
   #============================================================================
   # Set up installation directories
   set(IGN_INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
-  set(IGN_INCLUDE_INSTALL_DIR_POSTFIX "ignition/${IGN_DESIGNATION}${PROJECT_VERSION_MAJOR}")
+  set(IGN_INCLUDE_INSTALL_DIR_POSTFIX "ignition/${GZ_DESIGNATION}${PROJECT_VERSION_MAJOR}")
   set(IGN_INCLUDE_INSTALL_DIR_FULL    "${IGN_INCLUDE_INSTALL_DIR}/${IGN_INCLUDE_INSTALL_DIR_POSTFIX}")
   set(IGN_DATA_INSTALL_DIR_POSTFIX "ignition/${PROJECT_NAME_LOWER}")
   set(IGN_DATA_INSTALL_DIR         "${CMAKE_INSTALL_DATAROOTDIR}/${IGN_DATA_INSTALL_DIR_POSTFIX}")
@@ -121,16 +123,16 @@ macro(ign_setup_packages)
     # (but later on when installing)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${IGN_LIB_INSTALL_DIR}")
+    set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
 
     # add the automatically determined parts of the RPATH
     # which point to directories outside the build tree to the install RPATH
     set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
     # the RPATH to be used when installing, but only if its not a system directory
-    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/${IGN_LIB_INSTALL_DIR}" isSystemDir)
+    list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" isSystemDir)
     if("${isSystemDir}" STREQUAL "-1")
-      set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${IGN_LIB_INSTALL_DIR}")
+      set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
     endif("${isSystemDir}" STREQUAL "-1")
   endif()
 
@@ -198,12 +200,16 @@ function(_ign_create_pkgconfig)
   endif()
 
   set(pkgconfig_output "${CMAKE_BINARY_DIR}/cmake/pkgconfig/${target_name}.pc")
-  set(pkgconfig_install_dir "${IGN_LIB_INSTALL_DIR}/pkgconfig")
+  set(pkgconfig_install_dir "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
   file(RELATIVE_PATH
     PC_CONFIG_RELATIVE_PATH_TO_PREFIX
-    "${CMAKE_INSTALL_PREFIX}/${pkgconfig_install_dir}"
+    "${pkgconfig_install_dir}"
     "${CMAKE_INSTALL_PREFIX}"
   )
+
+  include("${IGNITION_CMAKE_DIR}/JoinPaths.cmake")
+  join_paths(PC_LIBDIR "\${prefix}" "${CMAKE_INSTALL_LIBDIR}")
+  join_paths(PC_INCLUDEDIR "\${prefix}" "${CMAKE_INSTALL_INCLUDEDIR}" "${IGN_INCLUDE_INSTALL_DIR_POSTFIX}")
 
   configure_file(${pkgconfig_input} ${pkgconfig_output} @ONLY)
 
@@ -216,11 +222,16 @@ endfunction()
 
 
 #################################################
-# _ign_create_cmake_package([COMPONENT <component>])
+# _ign_create_cmake_package([COMPONENT <component>]
+#                           [LEGACY_PROJECT_PREFIX <prefix>])
 #
 # Provide the name of the target that will be installed and exported. If the
 # target is a component, pass in the COMPONENT argument followed by the
 # component's name.
+#
+# For packages like sdformat that use inconsistent case in the legacy cmake
+# variable names (like SDFormat_LIBRARIES), the LEGACY_PROJECT_PREFIX argument
+# can be used to specify the prefix of these variables.
 #
 # NOTE: This will be called automatically by ign_create_core_library(~) and
 #       ign_add_component(~), so users of ignition-cmake should not call this
@@ -239,7 +250,7 @@ function(_ign_create_cmake_package)
   #------------------------------------
   # Define the expected arguments
   set(options ALL)
-  set(oneValueArgs COMPONENT) # Unused
+  set(oneValueArgs COMPONENT LEGACY_PROJECT_PREFIX)
   set(multiValueArgs) # Unused
 
   #------------------------------------
@@ -276,7 +287,15 @@ function(_ign_create_cmake_package)
 
   endif()
 
+  if(_ign_create_cmake_package_LEGACY_PROJECT_PREFIX)
 
+    set(LEGACY_PROJECT_PREFIX ${_ign_create_cmake_package_LEGACY_PROJECT_PREFIX})
+
+  else()
+
+    set(LEGACY_PROJECT_PREFIX ${PROJECT_NAME_NO_VERSION_UPPER})
+
+  endif()
 
   # This gets used by the ignition-*.config.cmake.in files
   set(target_output_filename ${target_name}-targets.cmake)

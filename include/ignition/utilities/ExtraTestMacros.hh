@@ -18,7 +18,7 @@
 #ifndef IGNITION_UTILITIES_EXTRATESTMACROS_HH
 #define IGNITION_UTILITIES_EXTRATESTMACROS_HH
 
-#include <ignition/utilities/detail/ExtraTestMacros.hh>
+#include <gz/utilities/detail/ExtraTestMacros.hh>
 
 /// \brief Restrict the execution of the test for the Windows platform.
 /// The test will be compiled on Windows too but will never be run as

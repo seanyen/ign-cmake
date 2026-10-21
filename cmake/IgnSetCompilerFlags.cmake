@@ -74,7 +74,7 @@ macro(ign_setup_unix)
 
   find_program(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
   if(CMAKE_UNAME)
-    exec_program(${CMAKE_UNAME} ARGS -m OUTPUT_VARIABLE CMAKE_SYSTEM_PROCESSOR)
+    execute_process(COMMAND ${CMAKE_UNAME} -m OUTPUT_VARIABLE CMAKE_SYSTEM_PROCESSOR OUTPUT_STRIP_TRAILING_WHITESPACE)
     set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL
         "processor type (i386 and x86_64)")
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
@@ -115,11 +115,20 @@ endmacro()
 # Set up compilation flags for GCC or Clang
 macro(ign_setup_gcc_or_clang)
 
+  if(ign_configure_build_HIDE_SYMBOLS_BY_DEFAULT)
+    set(CMAKE_C_VISIBILITY_PRESET "hidden")
+    set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
+  else()
+    set(CMAKE_C_VISIBILITY_PRESET "default")
+    set(CMAKE_CXX_VISIBILITY_PRESET "default")
+  endif()
+
+
   ign_filter_valid_compiler_options(
     CUSTOM_ALL_FLAGS
         -Wall -Wextra -Wno-long-long -Wno-unused-value -Wfloat-equal
         -Wshadow -Winit-self -Wswitch-default -Wmissing-include-dirs -pedantic
-        -fvisibility)
+        )
 
   # -ggdb3: Produce comprehensive debug information that can be utilized by gdb
   set(CUSTOM_DEBUG_FLAGS "-ggdb3")
@@ -285,21 +294,35 @@ macro(ign_setup_msvc)
     # W2: Warning level 2: significant warnings.
     #     TODO: Recommend Wall in the future.
     #     Note: MSVC /Wall generates tons of warnings on gtest code.
-    set(MSVC_MINIMAL_FLAGS "/Gy /W2")
+    # bigobj: Increase the number of sections in an object file, which is often needed
+    #         for complex templated code or when using Whole Program Optimization (/GL).
+    set(MSVC_MINIMAL_FLAGS "/Gy /W2 /bigobj")
 
     # Zi: Produce complete debug information
     # Note: We provide Zi to ordinary release mode because it does not impact
     # performance and can be helpful for debugging.
     set(MSVC_DEBUG_FLAGS "${MSVC_MINIMAL_FLAGS} /Zi")
 
-    # GL: Enable Whole Program Optimization
-    set(MSVC_RELEASE_FLAGS "${MSVC_DEBUG_FLAGS} /GL")
+    option(GZ_MSVC_WPO "Enable Whole Program Optimization on MSVC" ON)
+    if(GZ_MSVC_WPO)
+      # GL: Enable Whole Program Optimization
+      set(MSVC_RELEASE_FLAGS "${MSVC_DEBUG_FLAGS} /GL")
 
-    # UNDEBUG: Undefine NDEBUG so that assertions can be triggered
-    set(MSVC_RELWITHDEBINFO_FLAGS "${MSVC_RELEASE_FLAGS} /UNDEBUG")
+      # UNDEBUG: Undefine NDEBUG so that assertions can be triggered
+      set(MSVC_RELWITHDEBINFO_FLAGS "${MSVC_RELEASE_FLAGS} /UNDEBUG")
 
-    # INCREMENTAL:NO fix LNK4075 warning
-    set(MSVC_RELWITHDEBINFO_LINKER_FLAGS "/INCREMENTAL:NO")
+      # LTCG: need when using /GL above
+      set(MSVC_RELEASE_LINKER_FLAGS "/LTCG")
+
+      # INCREMENTAL:NO fix LNK4075 warning
+      #  see https://docs.microsoft.com/en-us/cpp/build/reference/gl-whole-program-optimization
+      set(MSVC_RELWITHDEBINFO_LINKER_FLAGS "/INCREMENTAL:NO /LTCG")
+    else()
+      set(MSVC_RELEASE_FLAGS "${MSVC_DEBUG_FLAGS}")
+      set(MSVC_RELWITHDEBINFO_FLAGS "${MSVC_RELEASE_FLAGS} /UNDEBUG")
+      set(MSVC_RELEASE_LINKER_FLAGS "")
+      set(MSVC_RELWITHDEBINFO_LINKER_FLAGS "/INCREMENTAL:NO")
+    endif()
 
     # cmake automatically provides /Zi /Ob0 /Od /RTC1
     set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${MSVC_DEBUG_FLAGS}")
@@ -308,11 +331,16 @@ macro(ign_setup_msvc)
     # cmake automatically provides /O2 /Ob2 /DNDEBUG
     set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${MSVC_RELEASE_FLAGS}")
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${MSVC_RELEASE_FLAGS}")
+    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} ${MSVC_RELEASE_LINKER_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} ${MSVC_RELEASE_LINKER_FLAGS}")
+    set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE} ${MSVC_RELEASE_LINKER_FLAGS}")
 
     # cmake automatically provides /Zi /O2 /Ob1 /DNDEBUG
     set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} ${MSVC_RELWITHDEBINFO_FLAGS}")
     set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${MSVC_RELWITHDEBINFO_FLAGS}")
     set(CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO} ${MSVC_RELWITHDEBINFO_LINKER_FLAGS}")
+    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} ${MSVC_RELWITHDEBINFO_LINKER_FLAGS}")
+    set(CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_STATIC_LINKER_FLAGS_RELWITHDEBINFO} ${MSVC_RELWITHDEBINFO_LINKER_FLAGS}")
 
     # cmake automatically provides /O1 /Ob1 /DNDEBUG
     set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} ${MSVC_MINIMAL_FLAGS}")
